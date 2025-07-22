@@ -9,6 +9,7 @@
 #include "agnes_types.h"
 #include "cpu.h"
 #include "ppu.h"
+#include "apu.h"
 
 #include "mapper.h"
 #endif
@@ -112,6 +113,7 @@ bool agnes_load_ines_data(agnes_t *agnes, void *data, size_t data_size) {
 
     cpu_init(&agnes->cpu, agnes);
     ppu_init(&agnes->ppu, agnes);
+    apu_init(&agnes->apu, agnes);
     
     return true;
 }
@@ -168,6 +170,11 @@ bool agnes_tick(agnes_t *agnes, bool *out_new_frame) {
         ppu_tick(&agnes->ppu, out_new_frame);
     }
     
+    // Tick APU for each CPU cycle
+    for (int i = 0; i < cpu_cycles; i++) {
+        apu_tick(&agnes->apu);
+    }
+    
     return true;
 }
 
@@ -193,6 +200,10 @@ agnes_color_t agnes_get_screen_pixel(const agnes_t *agnes, int x, int y) {
 
 void agnes_destroy(agnes_t *agnes) {
     free(agnes);
+}
+
+void agnes_get_audio_samples(const agnes_t *agnes, int16_t *samples, int count) {
+    apu_get_audio_samples(&agnes->apu, samples, count);
 }
 
 static uint8_t get_input_byte(const agnes_input_t* input) {

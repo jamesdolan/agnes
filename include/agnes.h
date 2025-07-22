@@ -79,6 +79,9 @@ bool agnes_next_frame(agnes_t *agnes);
 
 agnes_color_t agnes_get_screen_pixel(const agnes_t *agnes, int x, int y);
 
+// Audio functions
+void agnes_get_audio_samples(const agnes_t *agnes, int16_t *samples, int count);
+
 #ifdef __cplusplus
 }
 #endif

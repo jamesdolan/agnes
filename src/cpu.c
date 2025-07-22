@@ -4,6 +4,7 @@
 #include "cpu.h"
 
 #include "ppu.h"
+#include "apu.h"
 #include "agnes_types.h"
 #include "instructions.h"
 #include "mapper.h"
@@ -138,7 +139,9 @@ void cpu_write8(cpu_t *cpu, uint16_t addr, uint8_t val) {
             agnes->controllers[1].shift = agnes->controllers[1].state;
         }
     } else if (addr < 0x4018) { // apu and io
-
+        if (addr >= 0x4000 && addr <= 0x4017) {
+            apu_write_register(&agnes->apu, (apu_register_t)addr, val);
+        }
     } else if (addr < 0x4020) { // disabled
 
     } else {
@@ -157,7 +160,9 @@ uint8_t cpu_read8(cpu_t *cpu, uint16_t addr) {
     } else if (addr < 0x4000) {
         res = ppu_read_register(&agnes->ppu, 0x2000 | (addr & 0x7));
     } else if (addr < 0x4016) {
-        // apu
+        if (addr >= 0x4000 && addr <= 0x4015) {
+            res = apu_read_register(&agnes->apu, (apu_register_t)addr);
+        }
     } else if (addr < 0x4018) {
         int controller = addr & 0x1; // 0: 0x4016, 1: 0x4017
         if (agnes->controllers_latch) {
